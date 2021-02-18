@@ -33,7 +33,7 @@ class DropboxApi extends EventEmitter
 					@readDir path, { cursor, entries }
 				else
 					_(entries)
-						.map (stats) => @_makeStats path, stats
+						.map (stats) => @_makeStats path, stats, entries
 						.keyBy "path"
 						.mapKeys (v, k) => normalizePath k
 						.value()
@@ -81,12 +81,12 @@ class DropboxApi extends EventEmitter
 				throw new Error(body.error_summary || body.error || body)
 			if isBinary then JSON.parse(body) else body
 
-	_makeStats: (path, stats) =>
+	_makeStats: (path, stats, entries) =>
 		if stats is undefined
 			console.error "ERROR: stats is undefined"
 			console.log "Path:", path
-			console.log "Stats:", JSON.stringify(stats, null, 2)
-			exit 1
+			console.log "Entries:", JSON.stringify(entries, null, 2)
+			process.exit 1
 
 		isFolder = stats[".tag"] is "folder"
 
