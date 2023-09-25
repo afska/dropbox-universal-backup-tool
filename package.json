@@ -1,30 +1,30 @@
 {
-  "name": "dxubt",
-  "version": "1.0.0",
-  "description": "Dropbox Universal Backup Tool",
-  "main": "index.js",
-  "scripts": {
-    "start": "node dxubt.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/rodri042/dropbox-universal-backup-tool.git"
-  },
-  "author": "Rodrigo Alfonso",
-  "license": "ISC",
-  "dependencies": {
-    "async": "^3.1.0",
-    "bluebird": "^3.0.6",
-    "coffee-script": "^1.10.0",
-    "colors": "^1.1.2",
-    "filesize": "^3.1.3",
-    "getopt": "^0.1.0",
-    "lodash": "^4.17.5",
-    "moment": "^2.10.6",
-    "multi-progress": "^2.0.0",
-    "node-getopt": "^0.2.3",
-    "pretty-error": "^1.2.0",
-    "request": "^2.67.0",
-    "walk": "^2.3.9"
-  }
+	"name": "dxubt",
+	"version": "1.0.0",
+	"description": "Dropbox Universal Backup Tool",
+	"main": "index.js",
+	"scripts": {
+		"start": "node dxubt.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+ssh://git@github.com/afska/dropbox-universal-backup-tool.git"
+	},
+	"author": "Rodrigo Alfonso",
+	"license": "ISC",
+	"dependencies": {
+		"async": "^3.1.0",
+		"bluebird": "^3.0.6",
+		"coffee-script": "^1.10.0",
+		"colors": "^1.1.2",
+		"filesize": "^3.1.3",
+		"getopt": "^0.1.0",
+		"lodash": "^4.17.5",
+		"moment": "^2.10.6",
+		"multi-progress": "^2.0.0",
+		"node-getopt": "^0.2.3",
+		"pretty-error": "^1.2.0",
+		"request": "^2.67.0",
+		"walk": "^2.3.9"
+	}
 }
