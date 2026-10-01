@@ -42,7 +42,7 @@ options = require("node-getopt").create [
 	["f", "from=PATH", "Local source path."]
 	["t", "to=DROPBOX_PATH", "Dropbox destination path."]
 	["k", "token=TOKEN", "Dropbox token."]
-	["i", "ignore=REGEXPS", "List of regular expressions to ignore."]
+	["i", "ignore=PATHS", "JSON array of literal names/path segments to ignore at any depth."]
 	["c", "concurrency=5", "Number of simultaneous operations."]
 	["y", "yes", "Don't review changes before the sync."]
 	["m", "me", "Show the user's Dropbox information."]
@@ -52,7 +52,7 @@ options = require("node-getopt").create [
 
 options.setHelp(
 	"Usages:\n".cyan +
-	"./dxubt.js --from=\"/home\" --to=\"/\" --token=blah [--concurrency=5] [--ignore='[\"^node_modules$\"]'] [--yes]\n".cyan +
+	"./dxubt.js --from=\"/home\" --to=\"/\" --token=blah [--concurrency=5] [--ignore='[\"node_modules\"]'] [--yes]\n".cyan +
 	"./dxubt.js --me --token=blah\n".cyan +
 	"\n" +
 	"[[OPTIONS]]".white

@@ -10,6 +10,7 @@ module.exports =
 
 class BackupTool extends EventEmitter
 	constructor: ({ token, @from, @to, @concurrency }) ->
+		@to = @to.replace /\/+$/, "" if @to?
 		@dropboxApi = new DropboxApi(token)
 		@dropboxApi.on "reading", (e) => @emit "reading", e
 		@dropboxApi.on "progress", (e) => @emit "progress", e
@@ -25,6 +26,13 @@ class BackupTool extends EventEmitter
 
 		Promise.props(promises).then ({ local, remote }) =>
 			dirComparer.compare local, remote
+		.then (comparision) =>
+			isModified = ([local, remote]) =>
+				return true if local.size isnt remote.size or not remote.content_hash?
+				fsWalker.contentHash(from + local.path).then (hash) => hash isnt remote.content_hash
+			Promise.filter(comparision.modifiedFiles, isModified, { concurrency: 1 }).then (modifiedFiles) =>
+				comparision.modifiedFiles = modifiedFiles
+				comparision
 
 	sync: (comparision) =>
 		getActions = (group, action) =>

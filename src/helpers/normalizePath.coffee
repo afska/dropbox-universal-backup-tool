@@ -1,4 +1,2 @@
-_ = require("lodash")
-
 module.exports = (path) =>
-	_.deburr path.toLowerCase()
+	path.normalize("NFC").toLowerCase().normalize("NFC")

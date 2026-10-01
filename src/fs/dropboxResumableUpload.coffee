@@ -11,9 +11,8 @@ class DropboxResumableUpload extends EventEmitter
 		@TIMEOUT = 120000
 
 	run: (onProgress) =>
-		new Promise (resolve) =>
+		new Promise (resolve, reject) =>
 			@_initialize()
-			@_uploadChunk()
 
 			@on "chunk-ok", (progress) ->
 				onProgress progress
@@ -24,6 +23,11 @@ class DropboxResumableUpload extends EventEmitter
 
 			@on "complete", ->
 				@_dispose() ; resolve()
+
+			@on "failed", (e) ->
+				@_dispose() ; reject(e)
+
+			@_uploadChunk()
 
 	pendingBytes: =>
 		@localFile.size - @uploadedBytes
@@ -37,7 +41,14 @@ class DropboxResumableUpload extends EventEmitter
 		if @pendingBytes() > 0
 			if not isRetry
 				bytesToRead = @_trimChunkIfNeeded()
-				fs.readSync @fd, @chunk, 0, bytesToRead
+				try
+					bytesRead = 0
+					while bytesRead < bytesToRead
+						count = fs.readSync @fd, @chunk, bytesRead, bytesToRead - bytesRead, null
+						if count is 0 then throw new Error("Unexpected end of file: #{@localFile.path}")
+						bytesRead += count
+				catch e
+					return @emit "failed", e
 
 			stage = if @sessionId? then "append" else "start"
 			return @api.request("files/upload_session/#{stage}", @chunk, cursor)
@@ -52,7 +63,8 @@ class DropboxResumableUpload extends EventEmitter
 		@api.request("files/upload_session/finish", "", {
 			cursor: cursor
 			commit: @api._makeSaveOptions @localFile, @remotePath
-		}).finally => @emit "complete"
+		}).then => @emit "complete"
+		.catch (e) => @emit "failed", e
 
 	_initialize: =>
 		@fd = fs.openSync @localFile.path, "r"

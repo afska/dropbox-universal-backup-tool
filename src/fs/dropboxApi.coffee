@@ -13,18 +13,23 @@ class DropboxApi extends EventEmitter
 	constructor: (@token) ->
 		@URL = "https://$type.dropboxapi.com/2"
 
-	readDir: (path, tail) =>
-		path = path.toLowerCase()
+	readDir: (path, tail, retries = 0) =>
+		path = normalizePath(path).replace /\/+$/, ""
 
 		req =
 			if tail?
 				@request "files/list_folder/continue", { cursor: tail.cursor }
 			else
-				@request "files/list_folder", { path: path, recursive: true }
+				@request "files/list_folder", { path: path, recursive: true, limit: 500 }
 
 		req
 			.catch => throw "Error reading the remote directory #{path}."
 			.then (chunk) =>
+				unless _.isArray(chunk?.entries) and _.isBoolean(chunk.has_more) and _.isString(chunk.cursor) and chunk.cursor.length > 0
+					if retries < 2
+						return Promise.delay(1000).then => @readDir path, tail, retries + 1
+					throw new Error("Invalid or incomplete Dropbox listing for #{path}; comparison aborted.")
+
 				cursor = chunk.cursor
 				entries = (tail?.entries || []).concat chunk.entries
 				@emit "reading", entries.length
@@ -86,14 +91,15 @@ class DropboxApi extends EventEmitter
 		isFolder = stats[".tag"] is "folder"
 
 		if isFolder
-			path: stats.path_lower.replace path, ""
+			path: normalizePath(stats.path_lower).slice(path.length)
 			name: stats.name
 			isFolder: true
 		else
-			path: stats.path_lower.replace path, ""
+			path: normalizePath(stats.path_lower).slice(path.length)
 			name: stats.name
 			size: stats.size
-			mtime: new Date(stats.client_modified).setMilliseconds 0
+			mtime: new Date(stats.client_modified).setUTCMilliseconds 0
+			content_hash: stats.content_hash
 
 	_makeSaveOptions: (localFile, remotePath) =>
 		rareISODate = new Date(localFile.mtime).toISOString().replace /\.[0-9]{3}/, ""
